@@ -1,0 +1,103 @@
+;; Linux indentation mode
+(defun linux-c-mode ()
+"C mode with adjusted defaults for use with the Linux Kernel."
+(interactive)
+(c-mode)
+(c-set-style "linux")
+(setq tab-width 4)
+(setq indent-tabs-mode t)
+(setq c-basic-offset 4))
+(add-to-list 'auto-mode-alist '("\.c$" . linux-c-mode))
+
+;; C-S-<tab> ;; C-S-<win>-<tab>
+(global-set-key (kbd "M-S-<right>") 'tabbar-forward-tab)
+(global-set-key (kbd "M-S-<left>") 'tabbar-backward-tab)
+
+;; Editing shortcuts
+(global-set-key "\C-x\C-k" 'kill-region)
+(global-set-key "\C-w" 'backward-kill-word)
+(global-set-key (kbd "<f8>") 'undo)
+
+;; Avoiding emacs exit with C-x C-c
+(global-set-key "\C-xq" 'save-buffers-kill-terminal)
+(global-unset-key "\C-x\C-c")
+
+(setq-default indent-tabs-mode nil) ;; indent with spaces
+(setq default-tab-width 3)          ;; default tab size
+(menu-bar-mode 0)                   ;; hide menu-bar
+
+(add-to-list 'default-frame-alist '(height . 40))
+(add-to-list 'default-frame-alist '(width . 86))
+
+(defun tabbar-buffer-groups (buffer)
+  "Return the list of group names BUFFER belongs to.
+Return only one group for each buffer."
+  (with-current-buffer (get-buffer buffer)
+    (cond
+     ((or (get-buffer-process (current-buffer))
+          (memq major-mode
+                '(comint-mode compilation-mode)))
+      '("Misc")
+      )
+     ((member (buffer-name)
+              '("*scratch*"))
+      '("Misc")
+      )
+     ((member (buffer-name)
+              '("*Messages*"))
+      '("Misc")
+      )
+     ((member (buffer-name)
+              '("*Completions*"))
+      '("Misc")
+      )
+     ((member (buffer-name)
+              '("*Ediff Registry*"))
+      '("Misc")
+      )
+     ((eq major-mode 'dired-mode)
+      '("Main")
+      )
+     ((memq major-mode
+            '(fundamental-mode help-mode apropos-mode Info-mode Man-mode))
+      '("Misc")
+      )
+     ((memq major-mode
+            '(tex-mode latex-mode text-mode xml-mode css-mode))
+      '("Writting")
+      )
+     ((memq major-mode
+            '(rmail-mode
+              rmail-edit-mode vm-summary-mode vm-mode mail-mode
+              mh-letter-mode mh-show-mode mh-folder-mode
+              gnus-summary-mode message-mode gnus-group-mode
+              gnus-article-mode score-mode gnus-browse-killed-mode))
+      '("Mail")
+      )
+     ((memq major-mode
+            '(perl-mode))
+      '("Main")
+      )
+     (t
+      '("Main")
+      )
+     )))
+
+(add-to-list 'load-path
+              "~/.emacs.d/plugins/yasnippet")
+(add-to-list 'load-path
+              "~/.emacs.d/plugins")
+(require 'yasnippet) ;; not yasnippet-bundle
+(yas/global-mode 1)
+
+(require 'linum)
+(global-linum-mode 1)
+(show-paren-mode 1)
+(tabbar-mode 1)
+(column-number-mode 1)
+(setq make-backup-files nil)
+
+(require 'whitespace)
+; make whitespace-mode use just basic coloring
+(setq whitespace-style (quote ( face tabs mark tab-mark trailing)))
+
